@@ -27,8 +27,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     controller.forward();
     controller.addListener(() {
+      // is important for changing to be visible
       setState(() {});
-      print('dart_mess: controller ${controller.value}');
     });
   }
 
