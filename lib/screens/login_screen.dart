@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(
-              height: 48.0,
+              height: 30.0,
             ),
             TextField(
               onChanged: (value) {
