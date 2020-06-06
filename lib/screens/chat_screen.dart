@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 
 final _firestore = Firestore.instance;
+FirebaseUser loggedInUser;
 
 class ChatScreen extends StatefulWidget {
   static const String id = 'chat_screen';
@@ -14,10 +15,10 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
+
   // this for control message after sent to be cleared
   final messageController = TextEditingController();
 
-  FirebaseUser loggedInUser;
   String messageText;
 
   @override
@@ -113,7 +114,7 @@ class MessageStream extends StatelessWidget {
             ),
           );
         }
-        final messages = snapshot.data.documents;
+        final messages = snapshot.data.documents.reversed;
         List<MessageBubble> messageWidgets = [];
         for (var message in messages) {
           messageWidgets.add(
@@ -123,6 +124,8 @@ class MessageStream extends StatelessWidget {
         // expanded for leave space for Container that has send button
         return Expanded(
           child: ListView(
+            // this to show the most recent message
+            reverse: true,
             children: messageWidgets,
           ),
         );
@@ -138,10 +141,12 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isME = message.data['sender'] == loggedInUser.email;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment:
+            isME ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             message.data['sender'],
@@ -154,14 +159,21 @@ class MessageBubble extends StatelessWidget {
             padding: EdgeInsets.all(8.0),
             child: Material(
               elevation: 5,
-              color: Colors.lightBlueAccent,
-              borderRadius: BorderRadius.circular(30),
+              // to give different color to message bubble based on sender
+              color: isME ? Colors.lightBlueAccent : Colors.white,
+              // this to give feel of who sent message
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+                topLeft: isME ? Radius.circular(30) : Radius.circular(0),
+                topRight: isME ? Radius.circular(0) : Radius.circular(30),
+              ),
               child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                   message.data['text'],
                   style: TextStyle(
-                    color: Colors.white,
+                    color: isME ? Colors.white : Colors.grey,
                     fontSize: 15,
                   ),
                 ),
